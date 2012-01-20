@@ -1,0 +1,44 @@
+ ----------------------------------------------------------------
+/  1. Using Marvin in your a application                        /
+----------------------------------------------------------------
+
+- copy this folder 'marvin' to your project folder and add marvin_1.3.3.jar into your project 
+  library list
+- the folder organization, including subfolders 'framework' and 'plugins', must be preserved.
+- DO NOT add plug-ins .jar to your library list. They are loaded dynamically.
+
+ ----------------------------------------------------------------
+/  2. Compiling and running (command-line)                      /
+----------------------------------------------------------------
+
+Compiling: javac -cp .;./marvin/framework/marvin_1.3.3.jar YourApplication.java
+
+Running: java -cp .;./marvin/framework/marvin_1.3.3.jar YourApplication
+
+ ----------------------------------------------------------------
+/  3. Resources                                                 /
+----------------------------------------------------------------
+
+Tutorials:
+http://marvinproject.sourceforge.net/en/tutorials.html
+
+Available plug-ins:
+http://marvinproject.sourceforge.net/en/plugins.html
+
+Downloads (Project source codes and samples):
+http://marvinproject.sourceforge.net/en/download.html
+
+Youtube Channel:
+http://www.youtube.com/user/marvinproject
+
+ ----------------------------------------------------------------
+/  4. Recommend this project                                    /
+----------------------------------------------------------------
+
+Do you like Marvin? Recommend it:
+http://sourceforge.net/projects/marvinproject/reviews/
+
+
+
+Marvin Framework 2011
+www.marvinproject.org
