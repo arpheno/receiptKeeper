@@ -25,9 +25,9 @@
 uint32_t* Qwe::image=0;
 uint32_t* Qwe::integral=0;
 uint64_t* Qwe::intsquare=0;
-uint32_t* Qwe::dev=0;
+uint8_t* Qwe::dev=0;
 
-uint32_t* Qwe::mean=0;
+uint8_t* Qwe::mean=0;
 uint32_t Qwe::maxgrey=0;
 uint32_t Qwe::mingrey=0;
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "libnav",__VA_ARGS__)
@@ -97,23 +97,24 @@ uint64_t linesquare;
       }
 }
 void make_mean(int h,int w,int win){
-	Qwe::mean= (uint32_t*)malloc(sizeof(uint32_t)*h*w);
-
+	Qwe::mean= (uint8_t*)malloc(sizeof(uint8_t)*h*w);
+	uint32_t register temp;
 	  int grey,ret,j,linecount,x,y;
       for(j=4*w;j<w*h;j++){
     	  x=j%w;
     	  y=j/w;
     	  if(x>win/2&&y>win/2&&y<h-win/2&&x<w-win/2){
-    	  *(Qwe::mean+j)=((*(Qwe::integral+x + win/2 +w*( y + win/2)) \
-					 + *(Qwe::integral+x - win/2 +w*( y - win/2)) \
-					 - *(Qwe::integral+x + win/2 +w*( y - win/2)) \
-					 - *(Qwe::integral+x - win/2 +w*( y + win/2)))\
-					 /(win*win));
+    			  temp=  Qwe::integral[x + win/2 +w*( y + win/2)];
+				  temp+= Qwe::integral[x - win/2 +w*( y - win/2)];
+				  temp-= Qwe::integral[x + win/2 +w*( y - win/2)];
+				  temp-= Qwe::integral[x - win/2 +w*( y + win/2)];
+				  temp/=(win*win);
+				  Qwe::mean[j]=temp;
     	  }
       }
 }
 void make_dev(int h,int w,int win){
-	Qwe::dev= (uint32_t*)malloc(sizeof(uint32_t)*h*w);
+	Qwe::dev= (uint8_t*)malloc(sizeof(uint8_t)*h*w);
 	  int grey,ret,j,linecount,x,y;
 	      for(j=4*w;j<w*h;j++){
 	    	  x=j%w;
