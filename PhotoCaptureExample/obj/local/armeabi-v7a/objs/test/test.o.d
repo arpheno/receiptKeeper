@@ -23,6 +23,13 @@ obj/local/armeabi-v7a/objs/test/test.o: jni/test.cpp \
  /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/jni.h \
  /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/android/log.h \
  /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/android/bitmap.h \
+ /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/math.h \
+ /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/limits.h \
+ /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/sys/limits.h \
+ /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/linux/limits.h \
+ /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/machine/internal_types.h \
+ /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/machine/limits.h \
+ /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/sys/syslimits.h \
  jni/test.h
 
 /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/stdlib.h:
@@ -72,5 +79,19 @@ obj/local/armeabi-v7a/objs/test/test.o: jni/test.cpp \
 /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/android/log.h:
 
 /home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/android/bitmap.h:
+
+/home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/math.h:
+
+/home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/limits.h:
+
+/home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/sys/limits.h:
+
+/home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/linux/limits.h:
+
+/home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/machine/internal_types.h:
+
+/home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/machine/limits.h:
+
+/home/arphen/android-ndk-r7/platforms/android-14/arch-arm/usr/include/sys/syslimits.h:
 
 jni/test.h:

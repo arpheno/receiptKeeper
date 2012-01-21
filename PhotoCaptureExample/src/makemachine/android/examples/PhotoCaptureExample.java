@@ -1,8 +1,9 @@
 package makemachine.android.examples;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-
+import java.io.OutputStreamWriter;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
@@ -63,7 +65,7 @@ public class PhotoCaptureExample extends Activity
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 1;
         options.inPurgeable = true;
-        for(int i=4;i<5;i++){
+        for(int i=2;i<3;i++){
         	Log.i( "MakeMachine", "Trying window of "+String.valueOf(i*100) );
             //_bitmap.recycle();
             System.gc();
@@ -129,7 +131,25 @@ public class PhotoCaptureExample extends Activity
     			break;
     	}
     }
-    
+    public void generateNoteOnSD(String sFileName, String sBody){
+        try
+        {
+            File root = new File(Environment.getExternalStorageDirectory(), "Notes");
+            if (!root.exists()) {
+                root.mkdirs();
+            }
+            File gpxfile = new File(root, sFileName);
+            FileWriter writer = new FileWriter(gpxfile);
+            writer.append(sBody);
+            writer.flush();
+            writer.close();
+            Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+        }
+        catch(IOException e)
+        {
+             e.printStackTrace();
+        }
+       }    
     protected void onPhotoTaken()
     {
     	Log.i( "MakeMachine", "onPhotoTaken" );
@@ -148,8 +168,11 @@ public class PhotoCaptureExample extends Activity
     	//baseApi.setImage(new File("/mnt/sdcard/images/testthreshhold.jpg"));
     	baseApi.setImage(_bitmap);
     	String recognizedText = baseApi.getUTF8Text(); // Log or otherwise display this string...
-    	//_image.setImageBitmap(bitmap);
+    	//_image.setImageBitmap(_bitmap);
     	_field.setText(recognizedText);
+    	generateNoteOnSD("/rec.txt",recognizedText);
+    	
+
     	baseApi.end();
     	//_field.setVisibility( View.GONE );
     	
