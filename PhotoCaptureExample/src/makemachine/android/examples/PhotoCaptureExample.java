@@ -46,6 +46,7 @@ public class PhotoCaptureExample extends Activity
         _button.setOnClickListener( new ButtonClickHandler() );
         _button1.setOnClickListener( new ButtonClickHandler() );
         _path = Environment.getExternalStorageDirectory() + "/images/make_machine_example.jpg";
+    	
         
     	
     }
@@ -104,6 +105,7 @@ public class PhotoCaptureExample extends Activity
         c.drawBitmap(_bitmap, 0, 0, paint);
         _bitmap=tempmap;*/
     }
+    
     protected void startCameraActivity()
     {
     	Log.i("MakeMachine", "startCameraActivity()" );
@@ -169,13 +171,24 @@ public class PhotoCaptureExample extends Activity
     	baseApi.setImage(_bitmap);
     	String recognizedText = baseApi.getUTF8Text(); // Log or otherwise display this string...
     	//_image.setImageBitmap(_bitmap);
-    	_field.setText(recognizedText);
+    	
+    	_field.setText(postproc(recognizedText));
     	generateNoteOnSD("/rec.txt",recognizedText);
     	
 
     	baseApi.end();
     	//_field.setVisibility( View.GONE );
     	
+    }
+    public String postproc(String sample){
+    	String result="";
+    	String[] lines=sample.split("\n");
+    	for(String line : lines){
+    		if(line.matches(".*([1-9][0-9]*|0)(,[0-9]{2}).*")){
+    			result+=line+"\n";
+    		}
+    	}
+      	return result;
     }
     
     @Override 

@@ -76,24 +76,31 @@ void greyscale(uint32_t** pixels,int h,int w){
       int grey,ret,j,linecount,x,y,win=200;
       Qwe::image= (uint32_t*)malloc(sizeof(uint32_t)*h*w);
       Qwe::integral= (uint32_t*)malloc(sizeof(uint32_t)*h*w);
+#ifdef USE_DEVIATION
       Qwe::intsquare= (uint64_t*)malloc(sizeof(uint64_t)*h*w);
-uint64_t linesquare;
+      uint64_t linesquare;
+#endif
       for(j=0;j<h*w;j++){
     	  x=j%w;
     	  y=j/w;
-    	  if(!x)linecount=linesquare=0;
+    	  if(!x){linecount=0;
+#ifdef USE_DEVIATION
+    	  linesquare=0;
+#endif
+    	  }
           ret=*(*pixels+j); //Access RGB data
-          //grey=(int)(-Qwe::mingrey+( 0.212671*(ret&0x000000FF)+0.715160*((ret>>8)&0x000000FF)+0.072169*((ret>>16)&0x000000FF)/(Qwe::maxgrey-Qwe::mingrey)*255));//Calc Luma
-          grey=(int)( 0.212671*(ret&0x000000FF)+0.715160*((ret>>8)&0x000000FF)+0.072169*((ret>>16)&0x000000FF));//Calc Luma
+          grey=(int)(-Qwe::mingrey+( 0.212671*(ret&0x000000FF)+0.715160*((ret>>8)&0x000000FF)+0.072169*((ret>>16)&0x000000FF)/(Qwe::maxgrey-Qwe::mingrey)*255));//Calc Luma
+          //grey=(int)( 0.212671*(ret&0x000000FF)+0.715160*((ret>>8)&0x000000FF)+0.072169*((ret>>16)&0x000000FF));//Calc Luma
           Qwe::image[j]=grey; //Replicate Greyscale
                     /* Make Integral image for mean*/
           *(Qwe::integral+j)=linecount;
           linecount+=grey;
           if(j>=w){*(Qwe::integral+j)+=*(Qwe::integral+j-w);}
-          /*deviation*/
+#ifdef USE_DEVIATION
           linesquare+=(grey*grey);
           *(Qwe::intsquare+j)=linesquare;
           if(j>=w){Qwe::intsquare[j]+=Qwe::intsquare[j-w];}
+#endif
       }
 }
 void make_mean(int h,int w,int win){
@@ -113,8 +120,60 @@ void make_mean(int h,int w,int win){
     	  }
       }
 }
+void dilate(int h,int w,int win){
+	uint32_t tempx,tempy;
+	  int grey,ret,j,linecount,x,y;
+	  for(j=4*w;j<w*h;j++){
+		  Qwe::integral[j]=0x00FFFFFF;
+	  }
+	  for(j=4*w;j<w*h;j++){
+    	  x=j%w;
+    	  y=j/w;
+    	  if(x>win/2&&y>win/2&&y<h-win/2&&x<w-win/2&&!Qwe::image[j]){
+    			  for(tempy = y - win/2;tempy< y + win/2;tempy++){
+    				  for(tempx=x - win/2;tempx<x + win/2;tempx++){
+    					  Qwe::integral[tempx +w*(tempy)]=0;
+    				  }
+    			  }
+    	  }
+      }
+	  uint32_t* temp=Qwe::image;
+	  Qwe::image=Qwe::integral;
+	  Qwe::integral=temp;
+}
+
+void erode(int h,int w,int win){
+	uint32_t tempx,tempy;
+	  int grey,ret,j,linecount,x,y;
+	  for(j=4*w;j<w*h;j++){
+		  Qwe::integral[j]=0;
+	  }
+	  for(j=4*w;j<w*h;j++){
+    	  x=j%w;
+    	  y=j/w;
+    	  if(x>win/2&&y>win/2&&y<h-win/2&&x<w-win/2&&Qwe::image[j]){
+    			  for(tempy = y - win/2;tempy< y + win/2;tempy++){
+    				  for(tempx=x - win/2;tempx<x + win/2;tempx++){
+    					  Qwe::integral[tempx +w*(tempy)]=0x00FFFFFF;
+    				  }
+    			  }
+    	  }
+      }
+	  uint32_t* temp=Qwe::image;
+	  Qwe::image=Qwe::integral;
+	  Qwe::integral=temp;
+}
+void close(int h,int w,int win){
+	dilate(h,w,win);
+	erode(h,w,win);
+}
+void open(int h,int w,int win){
+	erode(h,w,win);
+	dilate(h,w,win);
+
+}
 void make_dev(int h,int w,int win){
-	Qwe::dev= (uint8_t*)malloc(sizeof(uint8_t)*h*w);
+    Qwe::dev= (uint8_t*)malloc(sizeof(uint8_t)*h*w);
 	  int grey,ret,j,linecount,x,y;
 	      for(j=4*w;j<w*h;j++){
 	    	  x=j%w;
@@ -143,32 +202,19 @@ void imtoin(int h,int w){
 	}
 }
 void thresh(int h,int w){
-	  int grey,ret=100,j;	  for(j=0;j<h*w;j++)
-      /*(Qwe::image+j)=*(Qwe::mean+j);*/
+	  int grey,ret=100,j;
       for(j=0;j<h*w;j++){
+    	  /* Maybe use the deviation*/
+#ifdef USE_DEVIATION
     	  const uint32_t k=0.34;
-    	  uint32_t t=Qwe::mean[j]*(1+k*(Qwe::dev[j]/128-1));
-
-#ifdef DEBUG
-    	  const char baseme[]="Mean is: ";
-    	  const char basede[]=" D is: ";
-    	  const char basetr[]=" T is: ";
-    	  const char baseim[]=" I is: ";
-
-    	  char filename [ 90 ];
-       	  sprintf(filename, "%s%u",basetr,t);
-          LOGI(filename);
-          sprintf(filename, "%s%u",baseim,Qwe::integral[j]);
-			LOGI(filename);
-	      sprintf(filename, "%s%u",baseme,Qwe::mean[j]);
-			          LOGI(filename);
-    	  //sprintf(filename, "%s%u%s%u%s%u", baseme, Qwe::mean[j],basede,Qwe::dev[j],baseim,Qwe::integral[j],basetr,t);
-
+    	  uint_32t t=Qwe::mean[j]*(1+k*(Qwe::dev[j]/128-1));
+    	  if(Qwe::integral[j]>=t-15)Qwe::image[j]=0x00FFFFFFFF;//Threshold it
+		  else Qwe::image[j]=0;
+#else
+    	  if(Qwe::integral[j]>=Qwe::mean[j]-15)Qwe::image[j]=0x00FFFFFFFF;//Threshold it
+		  else Qwe::image[j]=0;
 #endif
 
-
-    	  if(Qwe::integral[j]>=t-15)Qwe::image[j]=0x00FFFFFFFF;//Threshold it
-    	  else Qwe::image[j]=0;
       }
 }
 
@@ -206,8 +252,9 @@ JNIEXPORT void JNICALL Java_makemachine_android_examples_Nati_getrot(JNIEnv * en
       free(Qwe::integral);
       free(Qwe::mean);
       free(Qwe::dev);
+#ifdef USE_DEVIATION
       free(Qwe::intsquare);
-
+#endif
 }
 #ifdef __cplusplus
 }
@@ -222,8 +269,8 @@ JNIEXPORT void JNICALL Java_makemachine_android_examples_Nati_greyscale(JNIEnv *
       if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) return;
       if ((ret = AndroidBitmap_lockPixels(env, bitmap, &raw)) < 0) return;
       pixels=(uint32_t*) raw;
-#define CONTRAST STRETCH
-#ifdef CONTRAST_STRETCH
+#define USE_CONTRAST STRETCH
+#ifdef USE_CONTRAST_STRETCH
       determine_contrast(&pixels,info.height,info.width);
 #else
       Qwe::mingrey=0;
@@ -231,9 +278,14 @@ JNIEXPORT void JNICALL Java_makemachine_android_examples_Nati_greyscale(JNIEnv *
 #endif
       greyscale(&pixels,info.height,info.width);
       make_mean(info.height,info.width,wind);
+#ifdef USE_DEVIATION
       make_dev(info.height,info.width,wind);
+#endif
       imtoin(info.height,info.width);
       thresh(info.height,info.width);
+      close(info.height,info.width,5);
+      open(info.height,info.width,3);
+
       AndroidBitmap_unlockPixels(env, bitmap);
 
 }
