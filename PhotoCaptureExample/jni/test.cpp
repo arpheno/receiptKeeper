@@ -283,8 +283,8 @@ JNIEXPORT void JNICALL Java_makemachine_android_examples_Nati_greyscale(JNIEnv *
 #endif
       imtoin(info.height,info.width);
       thresh(info.height,info.width);
-      close(info.height,info.width,5);
-      open(info.height,info.width,3);
+      close(info.height,info.width,2);
+      open(info.height,info.width,2);
 
       AndroidBitmap_unlockPixels(env, bitmap);
 

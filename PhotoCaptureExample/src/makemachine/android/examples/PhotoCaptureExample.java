@@ -1,9 +1,14 @@
 package makemachine.android.examples;
+
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -32,26 +37,27 @@ public class PhotoCaptureExample extends Activity
 	protected TextView _field;
 	protected String _path;
 	protected boolean _taken;
+	private NotesDbAdapter mDbHelper;
+
 	protected static final String PHOTO_TAKEN	= "photo_taken";
 	private Bitmap _bitmap;	
     @Override
     public void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
-        
+        mDbHelper = new NotesDbAdapter(this);
+        mDbHelper.open();
         setContentView(R.layout.main);
         _field = ( TextView ) findViewById( R.id.field );
         _button = ( Button ) findViewById( R.id.button );
         _button1 = ( Button ) findViewById( R.id.button1 );
-        _button.setOnClickListener( new ButtonClickHandler() );
-        _button1.setOnClickListener( new ButtonClickHandler() );
         _path = Environment.getExternalStorageDirectory() + "/images/make_machine_example.jpg";
     	
         
     	
     }
     
-    public class ButtonClickHandler implements View.OnClickListener 
+   /* public class ButtonClickHandler implements View.OnClickListener 
     {
     	public void onClick( View view ){
     		Log.i("MakeMachine", "ButtonClickHandler.onClick()" );
@@ -59,7 +65,7 @@ public class PhotoCaptureExample extends Activity
             Log.i( "MakeMachine", "hellowrold"+String.valueOf(k) );
     		startCameraActivity();
     	}
-    }
+    }*/
     public void toGrayscale(int t)
     {        
     	ExifInterface ex;
@@ -105,8 +111,15 @@ public class PhotoCaptureExample extends Activity
         c.drawBitmap(_bitmap, 0, 0, paint);
         _bitmap=tempmap;*/
     }
-    
-    protected void startCameraActivity()
+    public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
+
+    public static String now() {
+    Calendar cal = Calendar.getInstance();
+    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+    return sdf.format(cal.getTime());
+    }
+
+    public void startCameraActivity(View view)
     {
     	Log.i("MakeMachine", "startCameraActivity()" );
     	File file = new File( _path );
@@ -172,25 +185,58 @@ public class PhotoCaptureExample extends Activity
     	String recognizedText = baseApi.getUTF8Text(); // Log or otherwise display this string...
     	//_image.setImageBitmap(_bitmap);
     	
-    	_field.setText(postproc(recognizedText));
+    	_field.setText("dkdp");
     	generateNoteOnSD("/rec.txt",recognizedText);
-    	
-
+    	recognizedText=alph(recognizedText);
+    	long id=mDbHelper.createNote(now(), prices(recognizedText));
     	baseApi.end();
     	//_field.setVisibility( View.GONE );
     	
     }
-    public String postproc(String sample){
+    public void showpurchases(View view){
+    	Intent i = new Intent(this, Notepadv3.class);
+        startActivityForResult(i, 0);
+    }
+    public String alph(String sample){
+    	String result="";
+    	Pattern s = Pattern.compile("([a-zA-Z])5([a-zA-Z])");
+    	Pattern o = Pattern.compile("([a-zA-Z])0([a-zA-Z])");
+    	Pattern l = Pattern.compile("([a-zA-Z])1([a-zA-Z])");
+    	Pattern b = Pattern.compile("([a-zA-Z])8([a-zA-Z])");
+    	Matcher S=s.matcher(sample);
+    	sample=S.replaceAll("$1s$2");
+    	Matcher O=o.matcher(sample);
+    	sample=O.replaceAll("$1o$2");
+    	Matcher B=b.matcher(sample);
+    	sample=B.replaceAll("$1B$2");
+    	Matcher L=l.matcher(sample);
+    	sample=L.replaceAll("$1l$2");
+    	return sample;
+    }
+        public String prices(String sample){
     	String result="";
     	String[] lines=sample.split("\n");
     	for(String line : lines){
-    		if(line.matches(".*([1-9][0-9]*|0)(,[0-9]{2}).*")){
+    		if(line.matches(".*\\s+([1-9][0-9]*|0)\\D([0-9]{2})\\s+.*")){
     			result+=line+"\n";
     		}
     	}
       	return result;
     }
-    
+    public String date(String sample){
+    	String result="";
+    	String[] lines=sample.split("\n");
+    	for(String line : lines){
+    		if(line.contains("Datum")){
+    			String[] lines2=line.split("\\s");
+    			for(String line2 : lines){
+    				if(line2.contains("Datum"))
+    				return line2;
+    			}
+    		}
+    	}
+      	return result;
+    }
     @Override 
     protected void onRestoreInstanceState( Bundle savedInstanceState){
     	Log.i( "MakeMachine", "onRestoreInstanceState()");

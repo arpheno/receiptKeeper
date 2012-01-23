@@ -30,6 +30,7 @@
 	        android:layout_alignParentBottom="true"
 	        android:layout_alignParentLeft="true"
 	        android:layout_weight="5.33"
+	        android:onClick="startCameraActivity"
 	        android:text="Take Photo" />
 
 	</RelativeLayout>
