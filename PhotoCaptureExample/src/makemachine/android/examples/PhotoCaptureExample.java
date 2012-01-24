@@ -199,25 +199,39 @@ public class PhotoCaptureExample extends Activity
     }
     public String alph(String sample){
     	String result="";
-    	Pattern s = Pattern.compile("([a-zA-Z])5([a-zA-Z])");
-    	Pattern o = Pattern.compile("([a-zA-Z])0([a-zA-Z])");
-    	Pattern l = Pattern.compile("([a-zA-Z])1([a-zA-Z])");
-    	Pattern b = Pattern.compile("([a-zA-Z])8([a-zA-Z])");
+    	Pattern s = Pattern.compile("([a-zA-Z])5");
+    	Pattern o = Pattern.compile("([a-zA-Z])0");
+    	Pattern l = Pattern.compile("([a-zA-Z])1");
+    	Pattern b = Pattern.compile("([a-zA-Z])8");
+    	Pattern trim=Pattern.compile("(.),(.)");
+    	Matcher Trim=trim.matcher(sample);
+    	sample=Trim.replaceAll("$1.|>$2");
+    	
     	Matcher S=s.matcher(sample);
-    	sample=S.replaceAll("$1s$2");
+    	sample=S.replaceAll("$1s");
     	Matcher O=o.matcher(sample);
-    	sample=O.replaceAll("$1o$2");
+    	sample=O.replaceAll("$1o");
     	Matcher B=b.matcher(sample);
-    	sample=B.replaceAll("$1B$2");
+    	sample=B.replaceAll("$1B");
     	Matcher L=l.matcher(sample);
-    	sample=L.replaceAll("$1l$2");
+    	sample=L.replaceAll("$1l");
     	return sample;
     }
         public String prices(String sample){
     	String result="";
+    	Pattern trim;
+    	Matcher Trim;
     	String[] lines=sample.split("\n");
     	for(String line : lines){
     		if(line.matches(".*\\s+([1-9][0-9]*|0)\\D([0-9]{2})\\s+.*")){
+    			trim=Pattern.compile("^.*?([A-Z].*\\d).*");
+    	    	Trim=trim.matcher(line);
+    	    	line=Trim.replaceAll("$1");
+    	    	trim=Pattern.compile("(.*\\s+)([1-9]?[0-9][.,<][0-9]{2})(.*)");
+    	    	Trim=trim.matcher(line);
+    	    	line=Trim.replaceAll("<product>$1</product><price>$2</price>$3");
+    	    	
+    	    	
     			result+=line+"\n";
     		}
     	}

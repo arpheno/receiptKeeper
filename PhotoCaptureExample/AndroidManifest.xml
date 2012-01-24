@@ -19,7 +19,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".NoteEdit" />
+        <activity android:name=".Preview" />
     </application>
+    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
     <uses-sdk android:minSdkVersion="5" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest> 
